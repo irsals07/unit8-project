@@ -20,20 +20,23 @@ public class Main {
 
         int r = 0;
         int c = 0;
+        int rSafe = 0;
+        int cSafe = 0;
         while(end==false){
+            System.out.println(coordinates);
             if(c==maze[0].length-1 && r==maze.length-1){
                 coordinates.add("(" + r+", " + c+ ")");
                 end = true;
-            }
-            else if(r+1 <maze.length && maze[r+1][c].equals(".")){
-                maze[r][c] = "v";
-                coordinates.add("(" + r+", " + c+ ")");
-                r++;
             }
             else if(c+1<maze[0].length && maze[r][c+1].equals(".")){
                 maze[r][c] = "v";
                 coordinates.add("(" + r+", " + c+ ")");
                 c++;
+            }
+            else if(r+1 <maze.length && maze[r+1][c].equals(".")){
+                maze[r][c] = "v";
+                coordinates.add("(" + r+", " + c+ ")");
+                r++;
             }
             else if(r-1 >= 0 && maze[r-1][c].equals(".")){
                 maze[r][c] = "v";
@@ -44,6 +47,54 @@ public class Main {
                 maze[r][c] = "v";
                 coordinates.add("(" + r+", " + c+ ")");
                 c--;
+            }
+            //if there are multiple ways to go, it'll create a spawn point and follow the original algorithm
+            boolean dnr = r+1 < maze.length && maze[r+1][c].equals(".") && c+1 <maze[0].length && maze[r][c+1].equals(".");
+            boolean unr = r-1>=0 && maze[r-1][c].equals(".") && c+1 <maze[0].length && maze[r][c+1].equals(".");
+            boolean dnl = r+1 < maze.length && maze[r+1][c].equals(".") && c-1 >=0 && maze[r][c-1].equals(".");
+            boolean unl = r-1 >= 0 && maze[r-1][c].equals(".") && c-1 >=0 && maze[r][c-1].equals(".");
+            if(dnr && unr && dnl && unl){
+                rSafe = r;
+                cSafe = c;
+                int count = 0;
+                if(c==maze[0].length-1 && r==maze.length-1){
+                    coordinates.add("(" + r+", " + c+ ")");
+                    end = true;
+                }
+                else if(c+1<maze[0].length && maze[r][c+1].equals(".")){
+                    maze[r][c] = "v";
+                    coordinates.add("(" + r+", " + c+ ")");
+                    c++;
+                    count++;
+                }
+                else if(r+1 <maze.length && maze[r+1][c].equals(".")){
+                    maze[r][c] = "v";
+                    coordinates.add("(" + r+", " + c+ ")");
+                    r++;
+                    count++;
+                }
+                else if(r-1 >= 0 && maze[r-1][c].equals(".")){
+                    maze[r][c] = "v";
+                    coordinates.add("(" + r+", " + c+ ")");
+                    r--;
+                    count++;
+                }
+                else if(c-1 >= 0 && maze[r][c-1].equals(".")){
+                    maze[r][c] = "v";
+                    coordinates.add("(" + r+", " + c+ ")");
+                    c--;
+                    count++;
+                }
+                // if there is a dead end, it will go back to the spawn point and delete the last added coordinates
+                while(r-1>=0 && r+1<maze.length && c-1 >=0 && c+1<maze[0].length){
+                    if(!maze[r+1][c].equals(".") && !maze[r-1][c].equals(".") && !maze[r][c+1].equals(".") && !maze[r][c-1].equals(".")){
+                        r=rSafe;
+                        c=cSafe;
+                        for(int i = 0; i<count-1; i++){
+                            coordinates.remove(coordinates.get(coordinates.size()-1));
+                        }
+                    }
+                }
             }
 
         }
