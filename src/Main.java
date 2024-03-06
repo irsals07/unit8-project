@@ -11,100 +11,102 @@ public class Main {
         String[][] maze = getMaze("src/maze");
         ArrayList<String> coordinates = new ArrayList<String>();
         boolean end = false;
+        System.out.println();
         for (int r = 0; r < maze.length; r++) {
             for (int c = 0; c < maze[0].length; c++) {
                 System.out.print(maze[r][c] + " ");
             }
             System.out.println();
         }
-
         int r = 0;
         int c = 0;
         int rSafe = 0;
         int cSafe = 0;
         while(end==false){
-            System.out.println(coordinates);
+            for (int i = 0; i < maze.length; i++) {
+                for (int j = 0; j < maze[0].length; j++) {
+                    System.out.print(maze[i][j] + " ");
+                }
+                System.out.println();
+            }
+            System.out.println();
             if(c==maze[0].length-1 && r==maze.length-1){
                 coordinates.add("(" + r+", " + c+ ")");
                 end = true;
             }
-            else if(c+1<maze[0].length && maze[r][c+1].equals(".")){
+            else if(foundDeadend(r, c, maze)){
+                resetMaze(maze);
+                maze[r][c] = "X";
+                r = 0;
+                c = 0;
+                coordinates.clear();
+            }
+            else if(checkRight(r, c, maze)){
                 maze[r][c] = "v";
                 coordinates.add("(" + r+", " + c+ ")");
                 c++;
             }
-            else if(r+1 <maze.length && maze[r+1][c].equals(".")){
+            else if(checkDown(r, c, maze)){
                 maze[r][c] = "v";
                 coordinates.add("(" + r+", " + c+ ")");
                 r++;
             }
-            else if(r-1 >= 0 && maze[r-1][c].equals(".")){
+            else if(checkUp(r,c,maze)){
                 maze[r][c] = "v";
                 coordinates.add("(" + r+", " + c+ ")");
                 r--;
             }
-            else if(c-1 >= 0 && maze[r][c-1].equals(".")){
+            else if(checkLeft(r,c, maze)) {
                 maze[r][c] = "v";
-                coordinates.add("(" + r+", " + c+ ")");
+                coordinates.add("(" + r + ", " + c + ")");
                 c--;
             }
-            //if there are multiple ways to go, it'll create a spawn point and follow the original algorithm
-            boolean dnr = r+1 < maze.length && maze[r+1][c].equals(".") && c+1 <maze[0].length && maze[r][c+1].equals(".");
-            boolean unr = r-1>=0 && maze[r-1][c].equals(".") && c+1 <maze[0].length && maze[r][c+1].equals(".");
-            boolean dnl = r+1 < maze.length && maze[r+1][c].equals(".") && c-1 >=0 && maze[r][c-1].equals(".");
-            boolean unl = r-1 >= 0 && maze[r-1][c].equals(".") && c-1 >=0 && maze[r][c-1].equals(".");
-            if(dnr && unr && dnl && unl){
-                rSafe = r;
-                cSafe = c;
-                int count = 0;
-                if(c==maze[0].length-1 && r==maze.length-1){
-                    coordinates.add("(" + r+", " + c+ ")");
-                    end = true;
-                }
-                else if(c+1<maze[0].length && maze[r][c+1].equals(".")){
-                    maze[r][c] = "v";
-                    coordinates.add("(" + r+", " + c+ ")");
-                    c++;
-                    count++;
-                }
-                else if(r+1 <maze.length && maze[r+1][c].equals(".")){
-                    maze[r][c] = "v";
-                    coordinates.add("(" + r+", " + c+ ")");
-                    r++;
-                    count++;
-                }
-                else if(r-1 >= 0 && maze[r-1][c].equals(".")){
-                    maze[r][c] = "v";
-                    coordinates.add("(" + r+", " + c+ ")");
-                    r--;
-                    count++;
-                }
-                else if(c-1 >= 0 && maze[r][c-1].equals(".")){
-                    maze[r][c] = "v";
-                    coordinates.add("(" + r+", " + c+ ")");
-                    c--;
-                    count++;
-                }
-                // if there is a dead end, it will go back to the spawn point and delete the last added coordinates
-                while(r-1>=0 && r+1<maze.length && c-1 >=0 && c+1<maze[0].length){
-                    if(!maze[r+1][c].equals(".") && !maze[r-1][c].equals(".") && !maze[r][c+1].equals(".") && !maze[r][c-1].equals(".")){
-                        r=rSafe;
-                        c=cSafe;
-                        for(int i = 0; i<count-1; i++){
-                            coordinates.remove(coordinates.get(coordinates.size()-1));
-                        }
-                    }
-                }
-            }
-
         }
         System.out.println(coordinates);
-        for (int i = 0; r < maze.length; r++) {
-            for (int j = 0; c < maze[0].length; c++) {
-                System.out.print(maze[i][j] + " ");
-            }
-            System.out.println();
+    }
+    public static boolean checkRight(int r, int c, String[][] maze){
+        if(c+1<maze[0].length && maze[r][c+1].equals(".")){
+            return true;
         }
+        return false;
+    }
+    public static boolean checkDown(int r, int c, String[][] maze){
+        if(r+1 <maze.length && maze[r+1][c].equals(".")){
+            return true;
+        }
+        return false;
+    }
+    public static boolean checkLeft(int r, int c, String[][] maze){
+        if(c-1 >= 0 && maze[r][c-1].equals(".")){
+            return true;
+        }
+        return false;
+    }
+    public static boolean checkUp(int r, int c, String[][] maze){
+        if(r-1 >= 0 && maze[r-1][c].equals(".")){
+            return true;
+        }
+        return false;
+    }
+    public static boolean foundDeadend(int r, int c, String[][] maze){
+        if(!checkUp(r,c,maze) && ! checkDown(r,c,maze) && !checkRight(r,c,maze) && !checkLeft(r,c,maze)){
+            return true;
+        }
+        return false;
+    }
+    public static String[][] resetMaze(String[][] maze){
+        for(int r = 0; r<maze.length; r++){
+            for(int c = 0; c<maze[0].length; c++){
+                if(maze[r][c].equals("v")){
+                    maze[r][c] = ".";
+                }
+            }
+        }
+        return maze;
+    }
+    public static ArrayList<String> resetArrayList(ArrayList a){
+        a = new ArrayList<String>();
+        return a;
     }
 
     public static String[][] getMaze(String fileName) {
